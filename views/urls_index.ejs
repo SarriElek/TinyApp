@@ -6,9 +6,9 @@
 <body>
   <ul>
     <% for(var url in urls ) { %>
-      <li><%= urls[url]%> :  <a href='<%= urls[url] %>' ><%= url %></a> </li>
+      <li><%= urls[url]%> :  <a href='/u/<%= url %>' ><%= url %></a> </li>
     <% } %>
   </ul>
-  <a href=''>Shorten a new URL</a>
+  <a href='/urls/new'>Shorten a new URL</a>
 </body>
 </html>

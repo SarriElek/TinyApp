@@ -22,7 +22,11 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body);
   let shortURL = generateRandomString();
-  res.send(`OK ${shortURL}`);
+  let longURL = req.body.longURL;
+  if(shortURL && longURL){
+    urlDatabase[shortURL] = longURL;
+  }
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // URL TO CREATE NEW URL
@@ -36,6 +40,16 @@ app.get("/urls/:id", (req, res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
+});
+
+// URL TO REDIRECT SHORT URL TO LONG URL
+app.get("/u/:shortURL", (req, res) => {
+  let longURL = urlDatabase[req.params.shortURL];
+  console.log(longURL);
+  if(longURL){
+    res.redirect(longURL);
+  }
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
