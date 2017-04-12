@@ -10,3 +10,14 @@
     text-decoration: none;
     }
 </style>
+<% if (!username){ %>
+  <form action="/login" method="POST" style="margin:150px;">
+    <input id="username" type="text" name="username" >
+    <input type="submit" value="Submit">
+  </form>
+<% } else { %>
+  <p><%= username %></p>
+  <form method='POST' action='/logout'>
+     <input type='submit' value='Logout'>
+  </form>
+<% } %>

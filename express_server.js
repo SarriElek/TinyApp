@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
 
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
@@ -12,10 +13,32 @@ const urlDatabase = {
 app.set('view engine', 'ejs');
 // MIDDLEWARES
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
+
+// INDEX
+app.get('/', (req, res) => {
+  res.redirect('urls');
+});
+
+// LOGIN
+app.post('/login', (req, res) => {
+  const userName = req.body.username;
+  res.cookie('username', userName);
+  res.redirect('/');
+});
+
+// LOGOUT
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/');
+});
 
 // URLS GET ROUTE HANDLER
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render('urls_index', templateVars);
 });
 
@@ -31,14 +54,18 @@ app.post('/urls', (req, res) => {
 
 // URL TO CREATE NEW URL
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render('urls_new', templateVars);
 });
 
 // URL WITH ID ROUTE HANDLER
 app.get('/urls/:id', (req, res) => {
   const templateVars = {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies["username"]
   };
   if(templateVars.longURL){
     res.render('urls_show', templateVars);
