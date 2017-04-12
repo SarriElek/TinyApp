@@ -1,14 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
   <% include ./partials/_header %>
 </head>
-<body>
-  <ul>
-    <% for(var url in urls ) { %>
-      <li><%= urls[url]%> :  <a href='/u/<%= url %>' ><%= url %></a> </li>
-    <% } %>
-  </ul>
-  <a href='/urls/new'>Shorten a new URL</a>
+<body style='font-size:20px; padding:50px;''>
+  <div id='main'>
+    <table>
+      <thead>
+        <tr>
+          <th>Full URL</th>
+          <th>Shortened URL</th>
+          <th colspan='2'>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(var url in urls ) { %>
+          <tr>
+           <td>
+              <%= urls[url]%>
+            </td>
+            <td>
+              <a href='/u/<%= url %>' >
+                <%= url %>
+              </a>
+            </td>
+            <td>
+              <form method='POST' action='/urls/<%=  url %>/delete'>
+                <input type='submit' value='Delete'>
+              </form>
+            </td>
+            <td>
+              <a href='/urls/<%=  url %>'>
+                <input type='button' value='Update'>
+              </a>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  <div style= 'padding:50px;''>
+    <a href='/urls/new'>
+      <input type='button' value='Shorten a new URL'>
+    </a>
+  </div>
 </body>
 </html>

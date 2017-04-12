@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <% include ./partials/_header %>
-</head>
-<body>
-  <p><%= longURL %> :  <a href='<%= longURL %>' ><%= shortURL %></a> </p>
-</body>
+  <head>
+    <% include ./partials/_header %>
+  </head>
+  <body style="font-size:20px; padding:50px;">
+    <div id='main'>
+      <form action="/urls/<%= shortURL %>" method="POST" style="margin:150px;">
+        <label>Short URL:</label>
+        <label><%= shortURL %></label>
+        <label for="longURL">Edit the URL:</label>
+        <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px" value='<%= longURL %>'>
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+  </body>
 </html>
