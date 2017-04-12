@@ -1,5 +1,5 @@
 TinyApp
 =======
 
-Welcome
+Welcome to the tiny app
 
