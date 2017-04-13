@@ -25,16 +25,18 @@
            <td>
               <%= item.url %>
             </td>
-            <td>
-              <form method='POST' action='/urls/<%=  item.shortURL %>/delete'>
-                <input type='submit' value='Delete'>
-              </form>
-            </td>
-            <td>
-              <a href='/urls/<%=  item.shortURL %>'>
-                <input type='button' value='Update'>
-              </a>
-            </td>
+            <% if(item.userId === Number(user.id)) { %>
+              <td>
+                <form method='POST' action='/urls/<%=  item.shortURL %>/delete'>
+                  <input type='submit' value='Delete'>
+                </form>
+              </td>
+              <td>
+                <a href='/urls/<%=  item.shortURL %>'>
+                  <input type='button' value='Update'>
+                </a>
+              </td>
+            <% } %>
           </tr>
         <% }); %>
       </tbody>

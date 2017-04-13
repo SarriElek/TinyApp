@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 
-const urlDatabase = [
+let urlDatabase = [
   {
     shortURL : 'b2xVn2',
     url: 'http://www.lighthouselabs.ca',
@@ -138,7 +138,7 @@ app.post('/register', (req, res) => {
 
 });
 
-// URLS GET ROUTE HANDLER
+// READ URLS
 app.get('/urls', (req, res) => {
   const user = getUser(req);
   if(user){
@@ -158,13 +158,18 @@ app.get('/urls', (req, res) => {
 
 });
 
-// URLS POST ROUTE HANDLER
+// CREATE NEW URL
 app.post('/urls', (req, res) => {
   if(isLoggedIn(req)){
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
     if(shortURL && longURL){
-      urlDatabase[shortURL] = longURL;
+      const newURL = {
+        shortURL,
+        url: longURL,
+        userId: getUser(req).id
+      };
+      urlDatabase.push(newURL);
     }
     res.redirect(`/urls/${shortURL}`);
   }else{
@@ -177,7 +182,7 @@ app.post('/urls', (req, res) => {
 
 });
 
-// URL TO CREATE NEW URL
+// CREATE NEW URL FORM
 app.get('/urls/new', (req, res) => {
   if(isLoggedIn(req)){
     const templateVars = {
@@ -193,13 +198,13 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
-// URL WITH ID ROUTE HANDLER
+// UPDATE URL FORM
 app.get('/urls/:id', (req, res) => {
   if(isLoggedIn(req)){
     const templateVars = {
       user : getUser(req),
       shortURL: req.params.id,
-      longURL: urlDatabase[req.params.id],
+      longURL: findURL(req.params.id).url
     };
     if(templateVars.longURL){
       res.render('urls_show', templateVars);
@@ -215,15 +220,25 @@ app.get('/urls/:id', (req, res) => {
   }
 });
 
-// URL WITH ID TO UPDATE ROUTE HANDLER
+// UPDATE URL
 app.post('/urls/:id', (req, res) => {
   if(isLoggedIn(req)){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
-    if(longURL){
-      urlDatabase[shortURL] = longURL;
+    const usersURL = isUsersURL(shortURL, req);
+    if(usersURL){
+      if(longURL){
+        urlInfo = findURL(shortURL);
+        urlInfo.url = longURL;
+      }
+      res.redirect('/urls');
+    }else{
+      const templateVars = {
+        errorMessage: 'You cannot update another users shortened URLs',
+        showLogin: false
+      };
+      res.status(403).render('error', templateVars);
     }
-    res.redirect('/urls');
   }else{
     const templateVars = {
        errorMessage: 'You must be logged in to update a shortened URLs',
@@ -233,15 +248,22 @@ app.post('/urls/:id', (req, res) => {
   }
 });
 
-// URL WITH ID TO DELETE ROUTE HANDLER
+// DELETE URL
 app.post('/urls/:id/delete', (req, res) => {
   if(isLoggedIn(req)){
     const shortURL = req.params.id;
-    const longURL = urlDatabase[shortURL];
-    if(longURL){
-      delete urlDatabase[shortURL];
+    const usersURL = isUsersURL(shortURL, req);
+    if(usersURL){
+      urlDatabase = urlDatabase.filter(item => item.shortURL !== shortURL);
+      res.redirect('/urls');
+    }else{
+      const templateVars = {
+       errorMessage: 'You cannot delete another users shortened URLs',
+       showLogin: false
+      };
+      res.status(403).render('error', templateVars);
     }
-    res.redirect('/urls');
+
   }else{
     const templateVars = {
        errorMessage: 'You must be logged in to delete a shortened URLs',
@@ -253,7 +275,7 @@ app.post('/urls/:id/delete', (req, res) => {
 
 // URL TO REDIRECT SHORT URL TO LONG URL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = findURL(req.params.shortURL).url;
   if(longURL){
     res.redirect(longURL);
   }else{
@@ -300,4 +322,14 @@ function getUser(req){
 
 function getUserURLs(userId){
   return urlDatabase.filter(url => url.userId === Number(userId));
+}
+
+function isUsersURL(shortURL, req){
+  const urlInfo = urlDatabase.find(url => url.userId === Number(req.cookies.id));
+  return urlInfo?true:false;
+}
+
+function findURL(shortURL){
+  const urlInfo = urlDatabase.find(url => url.shortURL === shortURL);
+  return urlInfo;
 }
