@@ -1,0 +1,10 @@
+<div id='header'>
+  <h2>TinyAPP</h2>
+  <% if (user){ %>
+    <form method='POST' action='/logout'>
+       <label><%= user.username %></label> <input type='submit' value='Logout'>
+    </form>
+  <% } else { %>
+    <a href='/register'>Register</a> | <a href='/login'>Login</a>
+  <% } %>
+</div>

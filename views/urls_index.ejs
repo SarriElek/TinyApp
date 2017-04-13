@@ -3,26 +3,27 @@
 <head>
   <% include ./partials/_header %>
 </head>
-<body style='font-size:20px; padding:50px;''>
+<body style='font-size:20px;''>
+  <% include ./partials/header %>
   <div id='main'>
     <table>
       <thead>
         <tr>
-          <th>Full URL</th>
           <th>Shortened URL</th>
+          <th>Full URL</th>
           <th colspan='2'>Actions</th>
         </tr>
       </thead>
       <tbody>
         <% for(var url in urls ) { %>
           <tr>
-           <td>
-              <%= urls[url]%>
-            </td>
             <td>
               <a href='/u/<%= url %>' >
                 <%= url %>
               </a>
+            </td>
+           <td>
+              <%= urls[url]%>
             </td>
             <td>
               <form method='POST' action='/urls/<%=  url %>/delete'>
@@ -39,7 +40,7 @@
       </tbody>
     </table>
   </div>
-  <div style= 'padding:50px;''>
+  <div style= 'padding:10px;''>
     <a href='/urls/new'>
       <input type='button' value='Shorten a new URL'>
     </a>
