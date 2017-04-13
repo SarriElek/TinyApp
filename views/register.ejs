@@ -9,6 +9,9 @@
       <form action="/register" method="POST" style="margin:50px;">
         <fieldset>
           <legend>Register</legend>
+          <% if(errorMessage) { %>
+            <p><%= errorMessage %></p>
+          <% } %>
           <label for='email'>email</label>
           <input id="email" type="email" name="email" value="" placeholder="Enter your email" >
           <label for='username'>username</label>

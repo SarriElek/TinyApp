@@ -70,23 +70,45 @@ app.post('/logout', (req, res) => {
 
 // REGISTRATION
 app.get('/register', (req, res) => {
-    res.render('register', {user : null});
+  const templateVars = {
+    user : null,
+    errorMessage: ''
+  };
+  res.render('register', templateVars);
 });
 
 app.post('/register', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const username = req.body.username;
-    const id = generateId();
-    const user = {
-      id,
-      email,
-      password,
-      username
-    };
-    users.push(user);
-    res.cookie('id', id);
-    res.redirect('/');
+    const userWithSameEmail = users.find(user =>  user.email === email);
+    if(userWithSameEmail){
+      const templateVars = {
+       user: null,
+       errorMessage: 'There is an existing user with that email'
+      };
+      res.status(400);
+      res.render('register', templateVars);
+    }else if(!email || !password){
+      const templateVars = {
+       user: null,
+       errorMessage: 'Email and Password cannot be blanck'
+      };
+      res.status(400);
+      res.render('register', templateVars);
+    }else{
+      const id = generateId();
+      const user = {
+        id,
+        email,
+        password,
+        username
+      };
+      users.push(user);
+      res.cookie('id', id);
+      res.redirect('/');
+    }
+
 });
 
 // URLS GET ROUTE HANDLER
