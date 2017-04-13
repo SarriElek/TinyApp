@@ -48,22 +48,19 @@ app.use(cookieSession({
 }));
 
 // MIDDLEWARE
-// app.use(function(req, res, next) {
-//   req.user = null; //initialize with null value
-//   if (req.session.userId) {
-//     req.user = users.find(function(user) {
-//       //return user.id == req.cookies.user;
-//       return user.id == req.session.userId;
-//     });
-//   }
-//   next();
-// });
+// check if the user is logged in
+ app.use(function(req, res, next) {
+   req.user = null; //initialize with null value
+   if (req.session.id) {
+     req.user = users.find(user => user.id === req.session.id);
+   }
+   next();
+ });
 
 
 // INDEX
 app.get('/', (req, res) => {
-  const user = getUser(req);
-  if(user){
+  if(req.user){
     res.redirect('urls');
   }else{
     res.redirect('login');
@@ -72,12 +69,11 @@ app.get('/', (req, res) => {
 
 // LOGIN
 app.get('/login', (req, res) => {
-  const user = getUser(req);
-  if(user){
+  if(req.user){
     res.redirect('/');
   }else{
     const templateVars = {
-      user,
+      user: req.user,
       errorMessage: ''
     };
     res.render('login', templateVars);
@@ -152,7 +148,6 @@ app.post('/register', (req, res) => {
         password : hashed_password
       };
       users.push(user);
-      console.log(users);
       req.session.id = user.id;
       res.redirect('/');
     }
@@ -161,16 +156,15 @@ app.post('/register', (req, res) => {
 
 // READ URLS
 app.get('/urls', (req, res) => {
-  const user = getUser(req);
-  if(user){
+  if(req.user){
     const templateVars = {
-      user,
-      userURLs: getUserURLs(user.id)
+      user: req.user,
+      userURLs: getUserURLs(req.user.id)
     };
     res.render('urls_index', templateVars);
   }else{
     const templateVars = {
-       user,
+       user: req.user,
        errorMessage: 'You must be logged in to see your shortened URLs',
        showLogin: true
     };
@@ -181,14 +175,14 @@ app.get('/urls', (req, res) => {
 
 // CREATE NEW URL
 app.post('/urls', (req, res) => {
-  if(isLoggedIn(req)){
+  if(req.user){
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
     if(shortURL && longURL){
       const newURL = {
         shortURL,
         url: longURL,
-        userId: getUser(req).id
+        userId: req.user.id
       };
       urlDatabase.push(newURL);
     }
@@ -205,9 +199,9 @@ app.post('/urls', (req, res) => {
 
 // CREATE NEW URL FORM
 app.get('/urls/new', (req, res) => {
-  if(isLoggedIn(req)){
+  if(req.user){
     const templateVars = {
-      user : getUser(req)
+      user : req.user
     }
     res.render('urls_new', templateVars);
   }else{
@@ -221,9 +215,9 @@ app.get('/urls/new', (req, res) => {
 
 // UPDATE URL FORM
 app.get('/urls/:id', (req, res) => {
-  if(isLoggedIn(req)){
+  if(req.user){
     const templateVars = {
-      user : getUser(req),
+      user : req.user,
       shortURL: req.params.id,
       longURL: findURL(req.params.id).url
     };
@@ -243,7 +237,7 @@ app.get('/urls/:id', (req, res) => {
 
 // UPDATE URL
 app.post('/urls/:id', (req, res) => {
-  if(isLoggedIn(req)){
+  if(req.user){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
     const usersURL = isUsersURL(shortURL, req);
@@ -271,7 +265,7 @@ app.post('/urls/:id', (req, res) => {
 
 // DELETE URL
 app.post('/urls/:id/delete', (req, res) => {
-  if(isLoggedIn(req)){
+  if(req.user){
     const shortURL = req.params.id;
     const usersURL = isUsersURL(shortURL, req);
     if(usersURL){
@@ -327,18 +321,6 @@ function generateRandomString(){
 function generateId(){
   lastId ++
   return lastId;
-}
-
-function isLoggedIn(req){
-  const user = getUser(req);
-  if(user){
-    return true;
-  }
-  return false;
-}
-
-function getUser(req){
- return users.find(user => user.id === Number(req.session.id));
 }
 
 function getUserURLs(userId){
