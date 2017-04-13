@@ -2,7 +2,8 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 let urlDatabase = [
   {
@@ -21,13 +22,13 @@ const users = [
 {
   id: 1,
   username: 'Edurne',
-  password: 'polarbear',
+  password: '$2a$10$4hCD2RRuTLQmUKu3MTgZne.WjOsVcLg8m0Nqp1IAx2KADKxiyh3ye', //polarbear
   email: 'edurne.berastegi@gmail.com'
 },
 {
   id: 2,
   username: 'Javier',
-  password: 'grizlybear',
+  password: '$2a$10$OF0ovt9MLprffDHmBTFpIOGN4uwjUiTvo3CGM434kIs5KoaDxB07i', //grizzlybear
   email: 'javier@gmail.com'
 }
 ];
@@ -76,7 +77,7 @@ app.post('/login', (req, res) => {
     };
     res.status(403);
     res.render('login', templateVars);
-  }else if(password === user.password){
+  }else if(bcrypt.compareSync(password, user.password)){
     res.cookie('id', user.id);
     res.redirect('/');
   }else{
@@ -125,13 +126,15 @@ app.post('/register', (req, res) => {
       res.render('register', templateVars);
     }else{
       const id = generateId();
+      const hashed_password = bcrypt.hashSync(password, 10);
       const user = {
         id,
         email,
-        password,
-        username
+        username,
+        password : hashed_password
       };
       users.push(user);
+      console.log(users);
       res.cookie('id', id);
       res.redirect('/');
     }
