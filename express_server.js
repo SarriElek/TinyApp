@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 let urlDatabase = [
@@ -40,7 +40,25 @@ let lastId = 2;
 app.set('view engine', 'ejs');
 // MIDDLEWARES
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['lighthouse'],
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
+
+// MIDDLEWARE
+// app.use(function(req, res, next) {
+//   req.user = null; //initialize with null value
+//   if (req.session.userId) {
+//     req.user = users.find(function(user) {
+//       //return user.id == req.cookies.user;
+//       return user.id == req.session.userId;
+//     });
+//   }
+//   next();
+// });
+
 
 // INDEX
 app.get('/', (req, res) => {
@@ -78,7 +96,7 @@ app.post('/login', (req, res) => {
     res.status(403);
     res.render('login', templateVars);
   }else if(bcrypt.compareSync(password, user.password)){
-    res.cookie('id', user.id);
+    req.session.id = user.id;
     res.redirect('/');
   }else{
     const templateVars = {
@@ -92,7 +110,7 @@ app.post('/login', (req, res) => {
 
 // LOGOUT
 app.post('/logout', (req, res) => {
-  res.clearCookie('id');
+  req.session = null;
   res.redirect('/');
 });
 
@@ -135,7 +153,7 @@ app.post('/register', (req, res) => {
       };
       users.push(user);
       console.log(users);
-      res.cookie('id', id);
+      req.session.id = user.id;
       res.redirect('/');
     }
 
@@ -320,7 +338,7 @@ function isLoggedIn(req){
 }
 
 function getUser(req){
- return users.find(user => user.id === Number(req.cookies.id));
+ return users.find(user => user.id === Number(req.session.id));
 }
 
 function getUserURLs(userId){
@@ -328,7 +346,7 @@ function getUserURLs(userId){
 }
 
 function isUsersURL(shortURL, req){
-  const urlInfo = urlDatabase.find(url => url.userId === Number(req.cookies.id));
+  const urlInfo = urlDatabase.find(url => url.userId === Number(req.session.id));
   return urlInfo?true:false;
 }
 
