@@ -84,7 +84,7 @@ app.post('/login', (req, res) => {
 
 // LOGOUT
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('id');
   res.redirect('/');
 });
 
@@ -153,7 +153,8 @@ app.get('/urls', (req, res) => {
 
 // URLS POST ROUTE HANDLER
 app.post('/urls', (req, res) => {
-  if(req.cookies['username']){
+  const user = users.find(user => user.id === Number(req.cookies.id));
+  if(user){
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
     if(shortURL && longURL){
@@ -172,9 +173,10 @@ app.post('/urls', (req, res) => {
 
 // URL TO CREATE NEW URL
 app.get('/urls/new', (req, res) => {
-  if(req.cookies['username']){
+  const user = users.find(user => user.id === Number(req.cookies.id));
+  if(user){
     const templateVars = {
-      username: req.cookies["username"]
+      user
     }
     res.render('urls_new', templateVars);
   }else{
@@ -188,11 +190,12 @@ app.get('/urls/new', (req, res) => {
 
 // URL WITH ID ROUTE HANDLER
 app.get('/urls/:id', (req, res) => {
-  if(req.cookies['username']){
+  const user = users.find(user => user.id === Number(req.cookies.id));
+  if(user){
     const templateVars = {
+      user,
       shortURL: req.params.id,
       longURL: urlDatabase[req.params.id],
-      username: req.cookies["username"]
     };
     if(templateVars.longURL){
       res.render('urls_show', templateVars);
@@ -210,7 +213,8 @@ app.get('/urls/:id', (req, res) => {
 
 // URL WITH ID TO UPDATE ROUTE HANDLER
 app.post('/urls/:id', (req, res) => {
-  if(req.cookies['username']){
+  const user = users.find(user => user.id === Number(req.cookies.id));
+  if(user){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
     if(longURL){
@@ -228,7 +232,8 @@ app.post('/urls/:id', (req, res) => {
 
 // URL WITH ID TO DELETE ROUTE HANDLER
 app.post('/urls/:id/delete', (req, res) => {
-  if(req.cookies['username']){
+  const user = users.find(user => user.id === Number(req.cookies.id));
+  if(user){
     const shortURL = req.params.id;
     const longURL = urlDatabase[shortURL];
     if(longURL){
