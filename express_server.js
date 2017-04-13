@@ -4,10 +4,18 @@ const PORT = process.env.PORT || 8080; // default port 8080
 const bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser')
 
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-};
+const urlDatabase = [
+  {
+    shortURL : 'b2xVn2',
+    url: 'http://www.lighthouselabs.ca',
+    userId: 1
+  },
+  {
+    shortURL: '9sm5xK',
+    url: 'http://www.google.com',
+    userId: 1
+  }
+];
 
 const users = [
 {
@@ -136,7 +144,7 @@ app.get('/urls', (req, res) => {
   if(user){
     const templateVars = {
       user,
-      urls: urlDatabase
+      userURLs: getUserURLs(user.id)
     };
     res.render('urls_index', templateVars);
   }else{
@@ -288,4 +296,8 @@ function isLoggedIn(req){
 
 function getUser(req){
  return users.find(user => user.id === Number(req.cookies.id));
+}
+
+function getUserURLs(userId){
+  return urlDatabase.filter(url => url.userId === Number(userId));
 }
