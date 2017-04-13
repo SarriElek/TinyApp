@@ -35,7 +35,7 @@ app.use(cookieParser());
 
 // INDEX
 app.get('/', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
+  const user = getUser(req);
   if(user){
     res.redirect('urls');
   }else{
@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 // LOGIN
 app.get('/login', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
+  const user = getUser(req);
   if(user){
     res.redirect('/');
   }else{
@@ -61,7 +61,6 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   var user = users.find(user =>  user.email === email);
-  console.log(user);
   if(!user){
     const templateVars = {
       user: null,
@@ -133,7 +132,7 @@ app.post('/register', (req, res) => {
 
 // URLS GET ROUTE HANDLER
 app.get('/urls', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
+  const user = getUser(req);
   if(user){
     const templateVars = {
       user,
@@ -153,8 +152,7 @@ app.get('/urls', (req, res) => {
 
 // URLS POST ROUTE HANDLER
 app.post('/urls', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
-  if(user){
+  if(isLoggedIn(req)){
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
     if(shortURL && longURL){
@@ -173,10 +171,9 @@ app.post('/urls', (req, res) => {
 
 // URL TO CREATE NEW URL
 app.get('/urls/new', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
-  if(user){
+  if(isLoggedIn(req)){
     const templateVars = {
-      user
+      user : getUser(req)
     }
     res.render('urls_new', templateVars);
   }else{
@@ -190,10 +187,9 @@ app.get('/urls/new', (req, res) => {
 
 // URL WITH ID ROUTE HANDLER
 app.get('/urls/:id', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
-  if(user){
+  if(isLoggedIn(req)){
     const templateVars = {
-      user,
+      user : getUser(req),
       shortURL: req.params.id,
       longURL: urlDatabase[req.params.id],
     };
@@ -213,8 +209,7 @@ app.get('/urls/:id', (req, res) => {
 
 // URL WITH ID TO UPDATE ROUTE HANDLER
 app.post('/urls/:id', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
-  if(user){
+  if(isLoggedIn(req)){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
     if(longURL){
@@ -232,8 +227,7 @@ app.post('/urls/:id', (req, res) => {
 
 // URL WITH ID TO DELETE ROUTE HANDLER
 app.post('/urls/:id/delete', (req, res) => {
-  const user = users.find(user => user.id === Number(req.cookies.id));
-  if(user){
+  if(isLoggedIn(req)){
     const shortURL = req.params.id;
     const longURL = urlDatabase[shortURL];
     if(longURL){
@@ -268,6 +262,8 @@ app.listen(PORT, () => {
 });
 
 
+// HELPER FUNCTIONS
+
 function generateRandomString(){
   let randomString = '';
   var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -280,4 +276,16 @@ function generateRandomString(){
 function generateId(){
   lastId ++
   return lastId;
+}
+
+function isLoggedIn(req){
+  const user = getUser(req);
+  if(user){
+    return true;
+  }
+  return false;
+}
+
+function getUser(req){
+ return users.find(user => user.id === Number(req.cookies.id));
 }
