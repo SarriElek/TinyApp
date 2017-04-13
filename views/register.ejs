@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include ./partials/_header %>
+  </head>
+  <body style="font-size:20px;">
+    <% include ./partials/header %>
+    <div id='main'>
+      <form action="/register" method="POST" style="margin:50px;">
+        <fieldset>
+          <legend>Register</legend>
+          <label for='email'>email</label>
+          <input id="email" type="email" name="email" value="" placeholder="Enter your email" >
+          <label for='username'>username</label>
+          <input id="username" type="text" name="username" value="" placeholder="Enter your username" >
+          <label for='password'>password</label>
+          <input id="password" type="password" name="password" value="" placeholder="Enter your password">
+          <input type="submit" value="Submit">
+        </fieldset>
+      </form>
+    </div>
+  </body>
+</html>

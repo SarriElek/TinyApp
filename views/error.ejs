@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include ./partials/_header %>
+  </head>
+  <body style="font-size:20px;">
+    <div id='main'>
+      <p><%= errorMessage %></p>
+      <% if(showLogin){%>
+        <a href='/login'>
+          <input type='button' value='Please, login'>
+        </a>
+      <% } %>
+    </div>
+  </body>
+</html>

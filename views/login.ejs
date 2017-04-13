@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <% include ./partials/_header %>
+  </head>
+  <body style="font-size:20px;">
+    <% include ./partials/header %>
+    <div id='main'>
+      <p>Please, log in</p>
+      <form action="/login" method="POST" style="margin:50px;">
+        <input id="username" type="text" name="username" >
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+  </body>
+</html>

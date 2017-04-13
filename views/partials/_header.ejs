@@ -1,23 +1,25 @@
 <title>TinyApp</title>
 <style>
   #main {
-      padding:50px;
+      padding:10px;
       border-radius: 10px;
       background: lavender;
-      align: centre;
+      max-width: 1000px;
+      }
+  #header {
+      padding:10px;
+      background: mintcream;
+      height: 120px;
+      max-width: 1000px;
       }
   a {
     text-decoration: none;
     }
+  table {
+    text-align: left;
+    width: 100%,
+  }
+  td, th {
+    padding: 10px;
+  }
 </style>
-<% if (!username){ %>
-  <form action="/login" method="POST" style="margin:150px;">
-    <input id="username" type="text" name="username" >
-    <input type="submit" value="Submit">
-  </form>
-<% } else { %>
-  <p><%= username %></p>
-  <form method='POST' action='/logout'>
-     <input type='submit' value='Logout'>
-  </form>
-<% } %>
