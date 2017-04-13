@@ -6,10 +6,18 @@
   <body style="font-size:20px;">
     <% include ./partials/header %>
     <div id='main'>
-      <p>Please, log in</p>
       <form action="/login" method="POST" style="margin:50px;">
-        <input id="username" type="text" name="username" >
-        <input type="submit" value="Submit">
+        <fieldset>
+          <legend>Log in</legend>
+          <% if(errorMessage) { %>
+            <p><%= errorMessage %></p>
+          <% } %>
+          <label for='email'>email</label>
+          <input id="email" type="email" name="email" value="" placeholder="Enter your email" >
+          <label for='password'>password</label>
+          <input id="password" type="password" name="password" value="" placeholder="Enter your password">
+          <input type="submit" value="Submit">
+        </fieldset>
       </form>
     </div>
   </body>

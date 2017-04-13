@@ -49,17 +49,37 @@ app.get('/login', (req, res) => {
   if(user){
     res.redirect('/');
   }else{
-    res.render('login', {user});
+    const templateVars = {
+      user,
+      errorMessage: ''
+    };
+    res.render('login', templateVars);
   }
 });
 
 app.post('/login', (req, res) => {
-  const userName = req.body.username;
-  // use .find in the array of users to find
-  // the user with that username and compare passwords
-  var user = users.find(user =>  user.username === username);
-  res.cookie('username', userName);
-  res.redirect('/');
+  const email = req.body.email;
+  const password = req.body.password;
+  var user = users.find(user =>  user.email === email);
+  console.log(user);
+  if(!user){
+    const templateVars = {
+      user: null,
+      errorMessage: 'Email not found'
+    };
+    res.status(403);
+    res.render('login', templateVars);
+  }else if(password === user.password){
+    res.cookie('id', user.id);
+    res.redirect('/');
+  }else{
+    const templateVars = {
+      user: null,
+      errorMessage: 'Wrong password'
+    };
+    res.status(403);
+    res.render('login', templateVars);
+  }
 });
 
 // LOGOUT
