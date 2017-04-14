@@ -47,6 +47,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
+
 // MIDDLEWARE
 // check if the user is logged in
  app.use(function(req, res, next) {
@@ -57,26 +58,32 @@ app.use(cookieSession({
    next();
  });
 
+app.use(function(err, req, res, next) {
+  res.status(404).send('Something broke!')
+  //res.status = 404;
+  //res.render('error',{errorMessage: 'fjlsdjflkdj', showLogin: false});
+});
+
 
 // INDEX
-app.get('/', (req, res) => {
-  if(req.user){
-    res.redirect('urls');
-  }else{
-    res.redirect('login');
-  }
+app.get('/', (req, res, next) => {
+   if(req.user){
+     res.redirect('urls');
+   }else{
+     res.redirect('login');
+   }
 });
 
 // LOGIN
-app.get('/login', (req, res) => {
-  if(req.user){
-    res.redirect('/');
-  }else{
+app.get('/login', (req, res, next) => {
+   if(req.user){
+     res.redirect('/');
+   }else{
     const templateVars = {
-      user: req.user,
-      errorMessage: ''
-    };
-    res.render('login', templateVars);
+       user: req.user,
+       errorMessage: ''
+     };
+     res.render('login', templateVars);
   }
 });
 
@@ -300,6 +307,15 @@ app.get('/u/:shortURL', (req, res) => {
      };
      res.status(404).render('error', templateVars);
   }
+});
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  const templateVars = {
+    errorMessage: `Not Found`,
+    showLogin: false
+  };
+  res.status(404).render('error', templateVars);
 });
 
 app.listen(PORT, () => {
