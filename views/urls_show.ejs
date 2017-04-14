@@ -6,10 +6,12 @@
   <body style="font-size:20px;">
     <% include ./partials/header %>
     <div id='main'>
-      <p><strong>Short URL:</strong>  <%= shortURL %></p>
-      <form action="/urls/<%= shortURL %>?_method=PUT" method="POST" style="margin:50px;">
+      <p><strong>Short URL: </strong> <%= URLInfo.shortURL %></p>
+      <p><strong>Visits: </strong> <%= URLInfo.visits %></p>
+      <p><strong>Visitors: </strong> <%= URLInfo.visitors.length %></p>
+      <form action="/urls/<%= URLInfo.shortURL %>?_method=PUT" method="POST" style="margin:50px;">
         <label for="longURL">Edit the URL:</label>
-        <input id="longURL" type="text" name="longURL" placeholder='<%= longURL %>' style="width: 300px" value='<%= longURL %>'>
+        <input id="longURL" type="text" name="longURL" placeholder='<%= URLInfo.url %>' style="width: 300px" value='<%= URLInfo.url %>'>
         <input type="submit" value="Submit">
       </form>
     </div>

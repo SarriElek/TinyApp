@@ -10,12 +10,31 @@ let urlDatabase = [
   {
     shortURL : 'b2xVn2',
     url: 'http://www.lighthouselabs.ca',
-    userId: 1
+    userId: 1,
+    visits: 0,
+    visitors: []
   },
   {
     shortURL: '9sm5xK',
     url: 'http://www.google.com',
-    userId: 1
+    userId: 1,
+    visits:  0,
+    visitors: []
+  }
+];
+
+const urlVisit = [
+  {
+    visitId: 1,
+    shortURL : 'b2xVn2',
+    visitorId: 1,
+    time: new Date()
+  },
+  {
+    visitId: 2,
+    shortURL : 'b2xVn2',
+    visitorId: 2,
+    time: new Date()
   }
 ];
 
@@ -56,6 +75,10 @@ app.use(methodOverride('_method'))
    req.user = null; //initialize with null value
    if (req.session.id) {
      req.user = users.find(user => user.id === req.session.id);
+   }else{
+    if(!req.session.anonymousUser){
+      req.session.anonymousUser = generateRandomString();
+    }
    }
    next();
  });
@@ -79,7 +102,7 @@ app.get('/', (req, res, next) => {
    if(req.user){
      res.redirect('urls');
    }else{
-     res.redirect('login');
+    res.redirect('login');
    }
 });
 
@@ -193,7 +216,9 @@ app.post('/urls', (req, res) => {
       const newURL = {
         shortURL,
         url: longURL,
-        userId: req.user.id
+        userId: req.user.id,
+        visits: 0,
+        visitors: []
       };
       urlDatabase.push(newURL);
     }
@@ -221,10 +246,9 @@ app.get('/urls/:id', (req, res) => {
   if(req.user){
     const templateVars = {
       user : req.user,
-      shortURL: req.params.id,
-      longURL: findURL(req.params.id).url
+      URLInfo: findURL(req.params.id),
     };
-    if(templateVars.longURL){
+    if(templateVars.URLInfo){
       res.render('urls_show', templateVars);
     }else{
       res.redirect('/urls');
@@ -273,8 +297,16 @@ app.delete('/urls/:id', (req, res) => {
 
 // URL TO REDIRECT SHORT URL TO LONG URL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = findURL(req.params.shortURL).url;
+  const shortURL = req.params.shortURL;
+  const URLInfo = findURL(req.params.shortURL);
+  const longURL = URLInfo.url;
   if(longURL){
+    const visitor = req.session.id || req.session.anonymousUser;
+    if(!URLInfo.visitors.find(item => item === visitor)){
+      URLInfo.visitors.push(visitor);
+    }
+    URLInfo.visits += 1;
+    console.log(URLInfo);
     res.redirect(longURL);
   }else{
      res.sendError(`The URL with id: ${req.params.shortURL} Not Found`, false, 404);
