@@ -11,30 +11,18 @@ let urlDatabase = [
     shortURL : 'b2xVn2',
     url: 'http://www.lighthouselabs.ca',
     userId: 1,
-    visits: 0,
+    visits: [],
     visitors: []
   },
   {
     shortURL: '9sm5xK',
     url: 'http://www.google.com',
     userId: 1,
-    visits:  0,
-    visitors: []
-  }
-];
-
-const urlVisit = [
-  {
-    visitId: 1,
-    shortURL : 'b2xVn2',
-    visitorId: 1,
-    time: new Date()
-  },
-  {
-    visitId: 2,
-    shortURL : 'b2xVn2',
-    visitorId: 2,
-    time: new Date()
+    visits:  [
+      {created: formatDate(new Date()), visitorId: 1},
+      {created: formatDate(new Date()), visitorId: 2}
+    ],
+    visitors: [ 1, 2 ]
   }
 ];
 
@@ -217,7 +205,7 @@ app.post('/urls', (req, res) => {
         shortURL,
         url: longURL,
         userId: req.user.id,
-        visits: 0,
+        visits: [],
         visitors: []
       };
       urlDatabase.push(newURL);
@@ -305,7 +293,7 @@ app.get('/u/:shortURL', (req, res) => {
     if(!URLInfo.visitors.find(item => item === visitor)){
       URLInfo.visitors.push(visitor);
     }
-    URLInfo.visits += 1;
+    URLInfo.visits.push({created: formatDate(new Date()), visitorId: visitor});
     console.log(URLInfo);
     res.redirect(longURL);
   }else{
@@ -337,6 +325,21 @@ function generateRandomString(){
 function generateId(){
   lastId ++
   return lastId;
+}
+
+function formatDate(date) {
+  var monthNames = [
+    "January", "February", "March",
+    "April", "May", "June", "July",
+    "August", "September", "October",
+    "November", "December"
+  ];
+
+  var day = date.getDate();
+  var monthIndex = date.getMonth();
+  var year = date.getFullYear();
+
+  return day + ' ' + monthNames[monthIndex] + ' ' + year;
 }
 
 function getUserURLs(userId){
