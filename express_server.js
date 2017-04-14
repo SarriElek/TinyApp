@@ -58,11 +58,18 @@ app.use(cookieSession({
    next();
  });
 
-app.use(function(err, req, res, next) {
-  res.status(404).send('Something broke!')
-  //res.status = 404;
-  //res.render('error',{errorMessage: 'fjlsdjflkdj', showLogin: false});
-});
+ // centralize errors
+ app.use(function(req, res, next){
+    res.sendError = function(message, showLogin, code){
+      const templateVars = {
+       user: req.user,
+       errorMessage: message,
+       showLogin: showLogin
+      };
+      res.status(code).render('error', templateVars);
+    };
+    next();
+ });
 
 
 // INDEX
@@ -170,12 +177,7 @@ app.get('/urls', (req, res) => {
     };
     res.render('urls_index', templateVars);
   }else{
-    const templateVars = {
-       user: req.user,
-       errorMessage: 'You must be logged in to see your shortened URLs',
-       showLogin: true
-    };
-    res.status(401).render('error', templateVars);
+    res.sendError('You must be logged in to see your shortened URLs', true, 401);
   }
 
 });
@@ -195,11 +197,7 @@ app.post('/urls', (req, res) => {
     }
     res.redirect(`/urls/${shortURL}`);
   }else{
-    const templateVars = {
-       errorMessage: 'You must be logged in to create new shortened URLs',
-       showLogin: true
-    };
-    res.status(401).render('error', templateVars);
+    res.sendError('You must be logged in to create new shortened URLs', true, 401);
   }
 
 });
@@ -212,11 +210,7 @@ app.get('/urls/new', (req, res) => {
     }
     res.render('urls_new', templateVars);
   }else{
-    const templateVars = {
-       errorMessage: 'You must be logged in to create new shortened URLs',
-       showLogin: true
-    };
-    res.status(401).render('error', templateVars);
+    res.sendError('You must be logged in to create new shortened URLs', true, 401);
   }
 });
 
@@ -234,11 +228,7 @@ app.get('/urls/:id', (req, res) => {
       res.redirect('/urls');
     }
   }else{
-    const templateVars = {
-       errorMessage: 'You must be logged in to update a shortened URLs',
-       showLogin: true
-    };
-    res.status(401).render('error', templateVars);
+    res.sendError('You must be logged in to update a shortened URLs', true, 401);
   }
 });
 
@@ -255,18 +245,10 @@ app.post('/urls/:id', (req, res) => {
       }
       res.redirect('/urls');
     }else{
-      const templateVars = {
-        errorMessage: 'You cannot update another users shortened URLs',
-        showLogin: false
-      };
-      res.status(403).render('error', templateVars);
+      res.sendError('You cannot update another users shortened URLs', false, 403);
     }
   }else{
-    const templateVars = {
-       errorMessage: 'You must be logged in to update a shortened URLs',
-       showLogin: true
-    };
-    res.status(401).render('error', templateVars);
+    res.sendError('You must be logged in to update a shortened URLs', true, 401);
   }
 });
 
@@ -279,19 +261,11 @@ app.post('/urls/:id/delete', (req, res) => {
       urlDatabase = urlDatabase.filter(item => item.shortURL !== shortURL);
       res.redirect('/urls');
     }else{
-      const templateVars = {
-       errorMessage: 'You cannot delete another users shortened URLs',
-       showLogin: false
-      };
-      res.status(403).render('error', templateVars);
+      res.sendError('You cannot delete another users shortened URLs', false, 403);
     }
 
   }else{
-    const templateVars = {
-       errorMessage: 'You must be logged in to delete a shortened URLs',
-       showLogin: false
-    };
-    res.status(404).render('error', templateVars);
+    res.sendError('You must be logged in to delete a shortened URLs', false, 404);
   }
 });
 
@@ -301,21 +275,13 @@ app.get('/u/:shortURL', (req, res) => {
   if(longURL){
     res.redirect(longURL);
   }else{
-     const templateVars = {
-       errorMessage: `The URL with id: ${req.params.shortURL} Not Found`,
-       showLogin: false
-     };
-     res.status(404).render('error', templateVars);
+     res.sendError(`The URL with id: ${req.params.shortURL} Not Found`, false, 404);
   }
 });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  const templateVars = {
-    errorMessage: `Not Found`,
-    showLogin: false
-  };
-  res.status(404).render('error', templateVars);
+  res.sendError(`Not Found`, false, 404);
 });
 
 app.listen(PORT, () => {
