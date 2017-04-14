@@ -16,3 +16,7 @@ You can:
  - See all your shortened URLs
  - Update any of your shortened URLs
  - Delete a URL from your list
+
+ ### NEW RELEASE!!
+
+ Now you can see who and when your URLs where visited!
