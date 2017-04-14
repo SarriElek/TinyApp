@@ -1,51 +1,51 @@
 <!DOCTYPE html>
 <html lang='en'>
-<head>
-  <% include ./partials/_header %>
-</head>
-<body style='font-size:20px;''>
-  <% include ./partials/header %>
-  <div id='main'>
-    <table>
-      <thead>
-        <tr>
-          <th>Shortened URL</th>
-          <th>Full URL</th>
-          <th colspan='2'>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% userURLs.forEach(item => { %>
+  <head>
+    <% include ./partials/_header %>
+  </head>
+  <body style='font-size:20px;''>
+    <% include ./partials/header %>
+    <div id='main'>
+      <table>
+        <thead>
           <tr>
-            <td>
-              <a href='/u/<%= item.shortURL %>' >
-                <%= item.shortURL %>
-              </a>
-            </td>
-           <td>
-              <%= item.url %>
-            </td>
-            <% if(item.userId === Number(user.id)) { %>
+            <th>Shortened URL</th>
+            <th>Full URL</th>
+            <th colspan='2'>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% userURLs.forEach(item => { %>
+            <tr>
               <td>
-                <form method='POST' action='/urls/<%=  item.shortURL %>?_method=DELETE'>
-                  <input type='submit' value='Delete'>
-                </form>
-              </td>
-              <td>
-                <a href='/urls/<%=  item.shortURL %>'>
-                  <input type='button' value='Update'>
+                <a href='/u/<%= item.shortURL %>' >
+                  <%= item.shortURL %>
                 </a>
               </td>
-            <% } %>
-          </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  </div>
-  <div style= 'padding:10px;''>
-    <a href='/urls/new'>
-      <input type='button' value='Shorten a new URL'>
-    </a>
-  </div>
-</body>
+             <td>
+                <%= item.url %>
+              </td>
+              <% if(item.userId == user.id) { %>
+                <td>
+                  <form method='POST' action='/urls/<%=  item.shortURL %>?_method=DELETE'>
+                    <input type='submit' value='Delete'>
+                  </form>
+                </td>
+                <td>
+                  <a href='/urls/<%=  item.shortURL %>'>
+                    <input type='button' value='Update'>
+                  </a>
+                </td>
+              <% } %>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <div style= 'padding:10px;''>
+      <a href='/urls/new'>
+        <input type='button' value='Shorten a new URL'>
+      </a>
+    </div>
+  </body>
 </html>

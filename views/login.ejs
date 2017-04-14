@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
     <% include ./partials/_header %>
   </head>
-  <body style="font-size:20px;">
+  <body style='font-size:20px;''>
     <% include ./partials/header %>
     <div id='main'>
-      <form action="/login" method="POST" style="margin:50px;">
+      <form action='/login' method='POST' style='margin:50px;''>
         <fieldset>
           <legend>Log in</legend>
           <% if(errorMessage) { %>
             <p><%= errorMessage %></p>
           <% } %>
           <label for='email'>email</label>
-          <input id="email" type="email" name="email" value="" placeholder="Enter your email" >
+          <input id='email' type='email' name='email' value='' placeholder='Enter your email' >
           <label for='password'>password</label>
-          <input id="password" type="password" name="password" value="" placeholder="Enter your password">
-          <input type="submit" value="Submit">
+          <input id='password' type='password' name='password' value='' placeholder='Enter your password'>
+          <input type='submit' value='Submit'>
         </fieldset>
       </form>
     </div>

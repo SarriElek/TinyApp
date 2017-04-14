@@ -4,8 +4,10 @@ const PORT = process.env.PORT || 3000; // default port 8080
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-var methodOverride = require('method-override');
+const methodOverride = require('method-override');
+const helpers = require('./helpers');
 
+// DATABASE
 let urlDatabase = [
   {
     shortURL : 'b2xVn2',
@@ -19,29 +21,27 @@ let urlDatabase = [
     url: 'http://www.google.com',
     userId: 1,
     visits:  [
-      {created: formatDate(new Date()), visitorId: 1},
-      {created: formatDate(new Date()), visitorId: 2}
+      {created: helpers.formatDate(new Date()), visitorId: 1},
+      {created: helpers.formatDate(new Date()), visitorId: 2}
     ],
     visitors: [ 1, 2 ]
   }
 ];
 
 const users = [
-{
-  id: 1,
-  username: 'Edurne',
-  password: '$2a$10$4hCD2RRuTLQmUKu3MTgZne.WjOsVcLg8m0Nqp1IAx2KADKxiyh3ye', //polarbear
-  email: 'edurne.berastegi@gmail.com'
-},
-{
-  id: 2,
-  username: 'Javier',
-  password: '$2a$10$OF0ovt9MLprffDHmBTFpIOGN4uwjUiTvo3CGM434kIs5KoaDxB07i', //grizzlybear
-  email: 'javier@gmail.com'
-}
+  {
+    id: 1,
+    username: 'Edurne',
+    password: '$2a$10$4hCD2RRuTLQmUKu3MTgZne.WjOsVcLg8m0Nqp1IAx2KADKxiyh3ye', //polarbear
+    email: 'edurne.berastegi@gmail.com'
+  },
+  {
+    id: 2,
+    username: 'Javier',
+    password: '$2a$10$OF0ovt9MLprffDHmBTFpIOGN4uwjUiTvo3CGM434kIs5KoaDxB07i', //grizzlybear
+    email: 'javier@gmail.com'
+  }
 ];
-
-let lastId = 2;
 
 
 // CONFIGURATION
@@ -54,56 +54,53 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
 
 
 // MIDDLEWARE
 // check if the user is logged in
- app.use(function(req, res, next) {
-   req.user = null; //initialize with null value
-   if (req.session.id) {
-     req.user = users.find(user => user.id === req.session.id);
-   }else{
+app.use((req, res, next) => {
+  req.user = null; //initialize with null value
+  if (req.session.id) {
+    req.user = users.find(user => user.id === req.session.id);
+  }else{
     if(!req.session.anonymousUser){
-      req.session.anonymousUser = generateRandomString();
+      req.session.anonymousUser = helpers.generateRandomString();
     }
-   }
-   next();
- });
+  }
+  next();
+});
 
- // centralize errors
- app.use(function(req, res, next){
-    res.sendError = function(message, showLogin, code){
-      const templateVars = {
-       user: req.user,
-       errorMessage: message,
-       showLogin: showLogin
-      };
-      res.status(code).render('error', templateVars);
+// centralize errors
+app.use((req, res, next) => {
+  res.sendError = function(message, showLogin, code){
+    const templateVars = {
+      user: req.user,
+      errorMessage: message,
+      showLogin: showLogin
     };
-    next();
- });
+    res.status(code).render('error', templateVars);
+  };
+  next();
+});
 
 
 // INDEX
 app.get('/', (req, res, next) => {
-   if(req.user){
-     res.redirect('urls');
-   }else{
-    res.redirect('login');
-   }
+  let route = req.user ? 'urls' : 'login';
+  res.redirect(route);
 });
 
 // LOGIN
 app.get('/login', (req, res, next) => {
-   if(req.user){
-     res.redirect('/');
-   }else{
+  if(req.user){
+    res.redirect('/');
+  }else{
     const templateVars = {
-       user: req.user,
-       errorMessage: ''
-     };
-     res.render('login', templateVars);
+      user: req.user,
+      errorMessage: ''
+    };
+    res.render('login', templateVars);
   }
 });
 
@@ -147,38 +144,37 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    const username = req.body.username;
-    const userWithSameEmail = users.find(user =>  user.email === email);
-    if(userWithSameEmail){
-      const templateVars = {
-       user: null,
-       errorMessage: 'There is an existing user with that email'
-      };
-      res.status(400);
-      res.render('register', templateVars);
-    }else if(!email || !password){
-      const templateVars = {
-       user: null,
-       errorMessage: 'Email and Password cannot be blanck'
-      };
-      res.status(400);
-      res.render('register', templateVars);
-    }else{
-      const id = generateId();
-      const hashed_password = bcrypt.hashSync(password, 10);
-      const user = {
-        id,
-        email,
-        username,
-        password : hashed_password
-      };
-      users.push(user);
-      req.session.id = user.id;
-      res.redirect('/');
-    }
-
+  const email = req.body.email;
+  const password = req.body.password;
+  const username = req.body.username;
+  const userWithSameEmail = users.find(user =>  user.email === email);
+  if(userWithSameEmail){
+    const templateVars = {
+      user: null,
+      errorMessage: 'There is an existing user with that email'
+    };
+    res.status(400);
+    res.render('register', templateVars);
+  }else if(!email || !password){
+    const templateVars = {
+      user: null,
+      errorMessage: 'Email and Password cannot be blanck'
+    };
+    res.status(400);
+    res.render('register', templateVars);
+  }else{
+    const id = generateId();
+    const hashed_password = bcrypt.hashSync(password, 10);
+    const user = {
+      id,
+      email,
+      username,
+      password : hashed_password
+    };
+    users.push(user);
+    req.session.id = user.id;
+    res.redirect('/');
+  }
 });
 
 // READ URLS
@@ -186,19 +182,18 @@ app.get('/urls', (req, res) => {
   if(req.user){
     const templateVars = {
       user: req.user,
-      userURLs: getUserURLs(req.user.id)
+      userURLs: helpers.getUserURLs(urlDatabase, req.user.id)
     };
     res.render('urls_index', templateVars);
   }else{
     res.sendError('You must be logged in to see your shortened URLs', true, 401);
   }
-
 });
 
 // CREATE NEW URL
 app.post('/urls', (req, res) => {
   if(req.user){
-    const shortURL = generateRandomString();
+    const shortURL = helpers.generateRandomString();
     const longURL = req.body.longURL;
     if(shortURL && longURL){
       const newURL = {
@@ -214,7 +209,6 @@ app.post('/urls', (req, res) => {
   }else{
     res.sendError('You must be logged in to create new shortened URLs', true, 401);
   }
-
 });
 
 // CREATE NEW URL FORM
@@ -234,7 +228,7 @@ app.get('/urls/:id', (req, res) => {
   if(req.user){
     const templateVars = {
       user : req.user,
-      URLInfo: findURL(req.params.id),
+      URLInfo: helpers.findURL(urlDatabase, req.params.id),
     };
     if(templateVars.URLInfo){
       res.render('urls_show', templateVars);
@@ -251,10 +245,10 @@ app.put('/urls/:id', (req, res) => {
   if(req.user){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
-    const usersURL = isUsersURL(shortURL, req);
+    const usersURL = helpers.isUsersURL(urlDatabase, shortURL, req);
     if(usersURL){
       if(longURL){
-        urlInfo = findURL(shortURL);
+        urlInfo = helpers.findURL(urlDatabase, shortURL);
         urlInfo.url = longURL;
       }
       res.redirect('/urls');
@@ -270,7 +264,7 @@ app.put('/urls/:id', (req, res) => {
 app.delete('/urls/:id', (req, res) => {
   if(req.user){
     const shortURL = req.params.id;
-    const usersURL = isUsersURL(shortURL, req);
+    const usersURL = helpers.isUsersURL(urlDatabase, shortURL, req);
     if(usersURL){
       urlDatabase = urlDatabase.filter(item => item.shortURL !== shortURL);
       res.redirect('/urls');
@@ -286,18 +280,17 @@ app.delete('/urls/:id', (req, res) => {
 // URL TO REDIRECT SHORT URL TO LONG URL
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  const URLInfo = findURL(req.params.shortURL);
+  const URLInfo = helpers.findURL(urlDatabase, req.params.shortURL);
   const longURL = URLInfo.url;
   if(longURL){
     const visitor = req.session.id || req.session.anonymousUser;
     if(!URLInfo.visitors.find(item => item === visitor)){
       URLInfo.visitors.push(visitor);
     }
-    URLInfo.visits.push({created: formatDate(new Date()), visitorId: visitor});
-    console.log(URLInfo);
+    URLInfo.visits.push({created: helpers.formatDate(new Date()), visitorId: visitor});
     res.redirect(longURL);
   }else{
-     res.sendError(`The URL with id: ${req.params.shortURL} Not Found`, false, 404);
+    res.sendError(`The URL with id: ${req.params.shortURL} Not Found`, false, 404);
   }
 });
 
@@ -309,49 +302,3 @@ app.use(function(req, res, next) {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-// HELPER FUNCTIONS
-
-function generateRandomString(){
-  let randomString = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (var i = 6; i > 0; --i) {
-    randomString += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return randomString;
-}
-
-function generateId(){
-  lastId ++
-  return lastId;
-}
-
-function formatDate(date) {
-  var monthNames = [
-    "January", "February", "March",
-    "April", "May", "June", "July",
-    "August", "September", "October",
-    "November", "December"
-  ];
-
-  var day = date.getDate();
-  var monthIndex = date.getMonth();
-  var year = date.getFullYear();
-
-  return day + ' ' + monthNames[monthIndex] + ' ' + year;
-}
-
-function getUserURLs(userId){
-  return urlDatabase.filter(url => url.userId === Number(userId));
-}
-
-function isUsersURL(shortURL, req){
-  const urlInfo = urlDatabase.find(url => url.userId === Number(req.session.id));
-  return urlInfo?true:false;
-}
-
-function findURL(shortURL){
-  const urlInfo = urlDatabase.find(url => url.shortURL === shortURL);
-  return urlInfo;
-}

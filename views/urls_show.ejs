@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
   <head>
     <% include ./partials/_header %>
   </head>
-  <body style="font-size:20px;">
+  <body style='font-size:20px;''>
     <% include ./partials/header %>
     <div id='main'>
       <p><strong>Short URL: </strong> <%= URLInfo.shortURL %></p>
@@ -11,13 +11,13 @@
       <p><strong>Visits: </strong> <%= URLInfo.visits.length %></p>
       <ol>
       <% URLInfo.visits.forEach( visit => { %>
-        <li>Date: <%= visit.created %>  User: <%= visit.visitorId %></li>
+        <li>Date: <%= visit.created %> ; User: <%= visit.visitorId %></li>
       <% }); %>
       </ol>
-      <form action="/urls/<%= URLInfo.shortURL %>?_method=PUT" method="POST" style="margin:50px;">
-        <label for="longURL">Edit the URL:</label>
-        <input id="longURL" type="text" name="longURL" placeholder='<%= URLInfo.url %>' style="width: 300px" value='<%= URLInfo.url %>'>
-        <input type="submit" value="Submit">
+      <form action='/urls/<%= URLInfo.shortURL %>?_method=PUT' method='POST' style='margin:50px;''>
+        <label for='longURL'>Edit the URL:</label>
+        <input id='longURL' type='text' name='longURL' placeholder='<%= URLInfo.url %>' style='width: 300px' value='<%= URLInfo.url %>'>
+        <input type='submit' value='Submit'>
       </form>
     </div>
   </body>
