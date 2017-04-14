@@ -7,7 +7,7 @@
     <% include ./partials/header %>
     <div id='main'>
       <p><strong>Short URL:</strong>  <%= shortURL %></p>
-      <form action="/urls/<%= shortURL %>" method="POST" style="margin:50px;">
+      <form action="/urls/<%= shortURL %>?_method=PUT" method="POST" style="margin:50px;">
         <label for="longURL">Edit the URL:</label>
         <input id="longURL" type="text" name="longURL" placeholder='<%= longURL %>' style="width: 300px" value='<%= longURL %>'>
         <input type="submit" value="Submit">

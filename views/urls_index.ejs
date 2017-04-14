@@ -27,7 +27,7 @@
             </td>
             <% if(item.userId === Number(user.id)) { %>
               <td>
-                <form method='POST' action='/urls/<%=  item.shortURL %>/delete'>
+                <form method='POST' action='/urls/<%=  item.shortURL %>?_method=DELETE'>
                   <input type='submit' value='Delete'>
                 </form>
               </td>

@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3000; // default port 8080
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+var methodOverride = require('method-override');
 
 let urlDatabase = [
   {
@@ -46,6 +47,7 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+app.use(methodOverride('_method'))
 
 
 // MIDDLEWARE
@@ -233,7 +235,7 @@ app.get('/urls/:id', (req, res) => {
 });
 
 // UPDATE URL
-app.post('/urls/:id', (req, res) => {
+app.put('/urls/:id', (req, res) => {
   if(req.user){
     const shortURL = req.params.id;
     const longURL = req.body.longURL;
@@ -253,7 +255,7 @@ app.post('/urls/:id', (req, res) => {
 });
 
 // DELETE URL
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id', (req, res) => {
   if(req.user){
     const shortURL = req.params.id;
     const usersURL = isUsersURL(shortURL, req);
