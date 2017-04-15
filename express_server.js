@@ -159,28 +159,28 @@ app.post('/register', (req, res, next) => {
     };
     res.status(400);
     res.render('register', templateVars);
+    return;
+  }
+  if(!email || !password){
+    const templateVars = {
+      user: null,
+      errorMessage: 'Email and Password cannot be blanck'
+    };
+    res.status(400);
+    res.render('register', templateVars);
   } else {
-      if(!email || !password){
-        const templateVars = {
-          user: null,
-          errorMessage: 'Email and Password cannot be blanck'
-        };
-        res.status(400);
-        res.render('register', templateVars);
-      } else {
-        const id = helpers.generateId();
-        bcrypt.hash(password, 10, function(err, result){
-          const user = {
-            id: id,
-            email: email,
-            username: username,
-            password : result
-          };
-          users.push(user);
-          req.session.id = user.id;
-          res.redirect('/');
-        });
-      }
+    const id = helpers.generateId();
+    bcrypt.hash(password, 10, function(err, result){
+      const user = {
+        id: id,
+        email: email,
+        username: username,
+        password : result
+      };
+      users.push(user);
+      req.session.id = user.id;
+      res.redirect('/');
+    });
   }
 });
 
