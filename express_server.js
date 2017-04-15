@@ -115,16 +115,20 @@ app.post('/login', (req, res) => {
     };
     res.status(403);
     res.render('login', templateVars);
-  }else if(bcrypt.compareSync(password, user.password)){
-    req.session.id = user.id;
-    res.redirect('/');
-  }else{
-    const templateVars = {
-      user: null,
-      errorMessage: 'Wrong password'
-    };
-    res.status(403);
-    res.render('login', templateVars);
+  }else {
+    bcrypt.compare(password, user.password, function(err, result) {
+    if(result){
+        req.session.id = user.id;
+        res.redirect('/');
+      }else{
+        const templateVars = {
+          user: null,
+          errorMessage: 'Wrong password'
+        };
+        res.status(403);
+        res.render('login', templateVars);
+      }
+    });
   }
 });
 
@@ -163,17 +167,18 @@ app.post('/register', (req, res) => {
     res.status(400);
     res.render('register', templateVars);
   }else{
-    const id = generateId();
-    const hashed_password = bcrypt.hashSync(password, 10);
-    const user = {
-      id,
-      email,
-      username,
-      password : hashed_password
-    };
-    users.push(user);
-    req.session.id = user.id;
-    res.redirect('/');
+    const id = helpers.generateId();
+    bcrypt.hash(password, 10, function(err, result){
+      const user = {
+        id,
+        email,
+        username,
+        password : result
+      };
+      users.push(user);
+      req.session.id = user.id;
+      res.redirect('/');
+    });
   }
 });
 
