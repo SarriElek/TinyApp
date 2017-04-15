@@ -63,7 +63,7 @@ app.use((req, res, next) => {
   req.user = null; //initialize with null value
   if (req.session.id) {
     req.user = users.find(user => user.id === req.session.id);
-  }else{
+  } else {
     if(!req.session.anonymousUser){
       req.session.anonymousUser = helpers.generateRandomString();
     }
@@ -95,7 +95,7 @@ app.get('/', (req, res, next) => {
 app.get('/login', (req, res, next) => {
   if(req.user){
     res.redirect('/');
-  }else{
+  } else {
     const templateVars = {
       user: req.user,
       errorMessage: ''
@@ -120,7 +120,7 @@ app.post('/login', (req, res) => {
     if(result){
         req.session.id = user.id;
         res.redirect('/');
-      }else{
+      } else {
         const templateVars = {
           user: null,
           errorMessage: 'Wrong password'
@@ -166,7 +166,7 @@ app.post('/register', (req, res) => {
     };
     res.status(400);
     res.render('register', templateVars);
-  }else{
+  } else {
     const id = helpers.generateId();
     bcrypt.hash(password, 10, function(err, result){
       const user = {
@@ -190,7 +190,7 @@ app.get('/urls', (req, res) => {
       userURLs: helpers.getUserURLs(urlDatabase, req.user.id)
     };
     res.render('urls_index', templateVars);
-  }else{
+  } else {
     res.sendError('You must be logged in to see your shortened URLs', true, 401);
   }
 });
@@ -211,7 +211,7 @@ app.post('/urls', (req, res) => {
       urlDatabase.push(newURL);
     }
     res.redirect(`/urls/${shortURL}`);
-  }else{
+  } else {
     res.sendError('You must be logged in to create new shortened URLs', true, 401);
   }
 });
@@ -223,7 +223,7 @@ app.get('/urls/new', (req, res) => {
       user : req.user
     }
     res.render('urls_new', templateVars);
-  }else{
+  } else {
     res.sendError('You must be logged in to create new shortened URLs', true, 401);
   }
 });
@@ -233,14 +233,14 @@ app.get('/urls/:id', (req, res) => {
   if(req.user){
     const templateVars = {
       user : req.user,
-      URLInfo: helpers.findURL(urlDatabase, req.params.id),
+      urlInfo: helpers.findURL(urlDatabase, req.params.id),
     };
-    if(templateVars.URLInfo){
+    if(templateVars.urlInfo){
       res.render('urls_show', templateVars);
-    }else{
+    } else {
       res.redirect('/urls');
     }
-  }else{
+  } else {
     res.sendError('You must be logged in to update a shortened URLs', true, 401);
   }
 });
@@ -257,10 +257,10 @@ app.put('/urls/:id', (req, res) => {
         urlInfo.url = longURL;
       }
       res.redirect('/urls');
-    }else{
+    } else {
       res.sendError('You cannot update another users shortened URLs', false, 403);
     }
-  }else{
+  } else {
     res.sendError('You must be logged in to update a shortened URLs', true, 401);
   }
 });
@@ -273,11 +273,11 @@ app.delete('/urls/:id', (req, res) => {
     if(usersURL){
       urlDatabase = urlDatabase.filter(item => item.shortURL !== shortURL);
       res.redirect('/urls');
-    }else{
+    } else {
       res.sendError('You cannot delete another users shortened URLs', false, 403);
     }
 
-  }else{
+  } else {
     res.sendError('You must be logged in to delete a shortened URLs', false, 404);
   }
 });
@@ -285,16 +285,16 @@ app.delete('/urls/:id', (req, res) => {
 // URL TO REDIRECT SHORT URL TO LONG URL
 app.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
-  const URLInfo = helpers.findURL(urlDatabase, req.params.shortURL);
-  const longURL = URLInfo.url;
+  const urlInfo = helpers.findURL(urlDatabase, req.params.shortURL);
+  const longURL = urlInfo.url;
   if(longURL){
     const visitor = req.session.id || req.session.anonymousUser;
-    if(!URLInfo.visitors.find(item => item === visitor)){
-      URLInfo.visitors.push(visitor);
+    if(!urlInfo.visitors.find(item => item === visitor)){
+      urlInfo.visitors.push(visitor);
     }
-    URLInfo.visits.push({created: helpers.formatDate(new Date()), visitorId: visitor});
+    urlInfo.visits.push({created: helpers.formatDate(new Date()), visitorId: visitor});
     res.redirect(longURL);
-  }else{
+  } else {
     res.sendError(`The URL with id: ${req.params.shortURL} Not Found`, false, 404);
   }
 });

@@ -6,17 +6,17 @@
   <body style='font-size:20px;''>
     <% include ./partials/header %>
     <div id='main'>
-      <p><strong>Short URL: </strong> <%= URLInfo.shortURL %></p>
-      <p><strong>Visitors: </strong> <%= URLInfo.visitors.length %></p>
-      <p><strong>Visits: </strong> <%= URLInfo.visits.length %></p>
+      <p><strong>Short URL: </strong> <%= urlInfo.shortURL %></p>
+      <p><strong>Visitors: </strong> <%= urlInfo.visitors.length %></p>
+      <p><strong>Visits: </strong> <%= urlInfo.visits.length %></p>
       <ol>
-      <% URLInfo.visits.forEach( visit => { %>
+      <% urlInfo.visits.forEach( visit => { %>
         <li>Date: <%= visit.created %> ; User: <%= visit.visitorId %></li>
       <% }); %>
       </ol>
-      <form action='/urls/<%= URLInfo.shortURL %>?_method=PUT' method='POST' style='margin:50px;''>
+      <form action='/urls/<%= urlInfo.shortURL %>?_method=PUT' method='POST' style='margin:50px;''>
         <label for='longURL'>Edit the URL:</label>
-        <input id='longURL' type='text' name='longURL' placeholder='<%= URLInfo.url %>' style='width: 300px' value='<%= URLInfo.url %>'>
+        <input id='longURL' type='text' name='longURL' placeholder='<%= urlInfo.url %>' style='width: 300px' value='<%= urlInfo.url %>'>
         <input type='submit' value='Submit'>
       </form>
     </div>

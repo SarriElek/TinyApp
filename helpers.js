@@ -13,7 +13,7 @@ function generateRandomString(){
 let lastId = 2;
 
 function generateId(){
-  lastId ++
+  lastId++;
   return lastId;
 }
 
