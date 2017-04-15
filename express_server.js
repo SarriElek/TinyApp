@@ -147,7 +147,7 @@ app.get('/register', (req, res) => {
   res.render('register', templateVars);
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const username = req.body.username;
@@ -159,26 +159,28 @@ app.post('/register', (req, res) => {
     };
     res.status(400);
     res.render('register', templateVars);
-  }else if(!email || !password){
-    const templateVars = {
-      user: null,
-      errorMessage: 'Email and Password cannot be blanck'
-    };
-    res.status(400);
-    res.render('register', templateVars);
   } else {
-    const id = helpers.generateId();
-    bcrypt.hash(password, 10, function(err, result){
-      const user = {
-        id,
-        email,
-        username,
-        password : result
-      };
-      users.push(user);
-      req.session.id = user.id;
-      res.redirect('/');
-    });
+      if(!email || !password){
+        const templateVars = {
+          user: null,
+          errorMessage: 'Email and Password cannot be blanck'
+        };
+        res.status(400);
+        res.render('register', templateVars);
+      } else {
+        const id = helpers.generateId();
+        bcrypt.hash(password, 10, function(err, result){
+          const user = {
+            id: id,
+            email: email,
+            username: username,
+            password : result
+          };
+          users.push(user);
+          req.session.id = user.id;
+          res.redirect('/');
+        });
+      }
   }
 });
 
@@ -202,7 +204,7 @@ app.post('/urls', (req, res) => {
     const longURL = req.body.longURL;
     if(shortURL && longURL){
       const newURL = {
-        shortURL,
+        shortURL: shortURL,
         url: longURL,
         userId: req.user.id,
         visits: [],
